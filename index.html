@@ -364,7 +364,8 @@ a:hover { color: var(--hot); }
 .modal-inner { position: relative; }
 .modal-close { position: absolute; top: .7rem; right: .7rem; z-index: 2; width: 40px; height: 40px; display: grid; place-items: center; font-size: 1.7rem; line-height: 1; background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); border-radius: 50%; cursor: pointer; transition: transform var(--t), color var(--t); }
 .modal-close:hover { transform: rotate(90deg); color: var(--hot); }
-.modal-media { aspect-ratio: 16/8; display: grid; place-items: center; color: #fff; font-family: var(--display); font-size: 2rem; transform: none; }
+.modal-media { position: relative; aspect-ratio: 16/8; display: grid; place-items: center; color: #fff; font-family: var(--display); font-size: 2rem; transform: none; overflow: hidden; }
+.modal-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .modal-media span { transform: skewX(-6deg); text-shadow: 0 2px 14px rgba(0,0,0,.4); }
 .modal-content { padding: clamp(1.3rem, 4vw, 1.9rem); }
 .modal-kicker { font-family: var(--mono); color: var(--hot); font-weight: 700; font-size: .74rem; text-transform: uppercase; letter-spacing: .1em; }
@@ -718,27 +719,27 @@ a:hover { color: var(--hot); }
     { id:"bodapay", title:"BodaPay",
       short:"Automatic daily-collection tracking for boda & taxi owners who lease vehicles to riders.",
       long:"Automatic daily-collection tracking for boda-boda (motorcycle) and taxi owners who lease vehicles to riders for a fixed daily fee. Mobile Money comes in, BodaPay matches it to the rider, and the owner gets a “Paid today” confirmation within seconds.",
-      tech:["Next.js","TypeScript","Tailwind","shadcn-style UI"], tags:["Fintech","Mobile Money","SaaS"], gradient:"linear-gradient(135deg,#1e3a8a,#2563eb)" },
+      tech:["Next.js","TypeScript","Tailwind","shadcn-style UI"], tags:["Fintech","Mobile Money","SaaS"], image:"assets/bodapay.png", gradient:"linear-gradient(135deg,#1e3a8a,#2563eb)" },
     { id:"cadence", title:"Cadence",
       short:"A content calendar for social media managers and agencies running many client accounts at once.",
       long:"A content calendar for social media managers and agencies running many client accounts at once. Plan, approve, and publish every brand's month from one board, with per-channel post variants, drag-and-drop scheduling, an AI idea generator, and shareable client approval links.",
-      tech:["Next.js","TypeScript","Prisma","dnd-kit"], tags:["SaaS","Productivity","AI"], gradient:"linear-gradient(135deg,#0f766e,#14b8a6)" },
+      tech:["Next.js","TypeScript","Prisma","dnd-kit"], tags:["SaaS","Productivity","AI"], image:"assets/cadence.png", gradient:"linear-gradient(135deg,#0f766e,#14b8a6)" },
     { id:"echo", title:"Echo",
       short:"A content-repurposing engine that turns one long asset into a full pack of platform-ready derivatives.",
       long:"A content-repurposing engine for podcasters and long-form YouTubers. Drop in one long asset and get a full package of platform-ready derivatives: short-form clip suggestions, X/Bluesky posts, threads, LinkedIn posts, a newsletter blurb, show notes, a carousel outline, pull quotes, and titles — all editable and export-ready.",
-      tech:["Next.js","Anthropic AI SDK","Supabase"], tags:["AI","Creator Tools"], gradient:"linear-gradient(135deg,#7c3aed,#a855f7)" },
+      tech:["Next.js","Anthropic AI SDK","Supabase"], tags:["AI","Creator Tools"], image:"assets/echo.png", gradient:"linear-gradient(135deg,#7c3aed,#a855f7)" },
     { id:"tone", title:"Tone",
       short:"An AI writing tool whose moat is a persistent, self-sharpening Brand Voice Profile.",
       long:"An AI writing tool for marketing teams whose moat is a persistent Brand Voice Profile. Teach it your voice once (writing samples + website + a short quiz), and every draft afterward is conditioned on that profile, with a feedback loop that keeps sharpening it.",
-      tech:["Next.js","Anthropic AI SDK","Prisma","Supabase"], tags:["AI","MarTech","SaaS"], gradient:"linear-gradient(135deg,#be123c,#f43f5e)" },
+      tech:["Next.js","Anthropic AI SDK","Prisma","Supabase"], tags:["AI","MarTech","SaaS"], image:"assets/tone.png", gradient:"linear-gradient(135deg,#be123c,#f43f5e)" },
     { id:"yiga", title:"Yiga",
       short:"A mobile-first, offline-capable language-learning app for Uganda's local languages.",
       long:"A mobile-first, offline-capable language-learning app for Uganda's local languages, in the spirit of Duolingo but built for the Ugandan context: low-end Android phones, patchy connectivity, and expensive data. Ships with a full Luganda course; other languages are swappable.",
-      tech:["Next.js","IndexedDB","Zustand","PWA"], tags:["EdTech","Offline-first","PWA"], gradient:"linear-gradient(135deg,#b45309,#f59e0b)" },
+      tech:["Next.js","IndexedDB","Zustand","PWA"], tags:["EdTech","Offline-first","PWA"], image:"assets/yiga.png", gradient:"linear-gradient(135deg,#b45309,#f59e0b)" },
     { id:"syskets", title:"Syskets",
       short:"A WiFi hotspot billing & management platform with MikroTik (RADIUS/API) integration.",
       long:"A WiFi hotspot billing and management platform: an admin dashboard for plans, vouchers, customers, and transactions, plus a captive portal for end users, with MikroTik (RADIUS/API) integration to control network access.",
-      tech:["React","React Router","Recharts"], tags:["ISP Tooling","Dashboard","Integrations"], gradient:"linear-gradient(135deg,#0369a1,#0ea5e9)" },
+      tech:["React","React Router","Recharts"], tags:["ISP Tooling","Dashboard","Integrations"], image:"assets/syskets.png", gradient:"linear-gradient(135deg,#0369a1,#0ea5e9)" },
     { id:"unideal-pro", title:"UniDeal Pro",
       short:"A secure academic marketplace for UCU students, with Mobile Money payments and an admin panel.",
       long:"A secure academic marketplace for Uganda Christian University students to buy and sell second-hand items, with Mobile Money payments and an admin panel.",
@@ -767,7 +768,13 @@ a:hover { color: var(--hot); }
     const frag = document.createDocumentFragment();
     PROJECTS.forEach((p, i) => {
       const media = el("div", { class: "card-media" }); media.style.background = p.gradient;
-      media.appendChild(el("span", { class: "media-label", text: p.title }));
+      if (p.image) {
+        // If the screenshot fails to load, fall back to the gradient + name label
+        media.appendChild(el("img", { src: p.image, alt: p.title + " screenshot", loading: "lazy", decoding: "async",
+          onerror: function () { this.remove(); media.appendChild(el("span", { class: "media-label", text: p.title })); } }));
+      } else {
+        media.appendChild(el("span", { class: "media-label", text: p.title }));
+      }
       const body = el("div", { class: "card-body" }, [
         el("h3", { text: p.title }),
         el("p", { class: "card-desc", text: p.short }),
@@ -786,7 +793,8 @@ a:hover { color: var(--hot); }
   function openModal(p) {
     lastFocused = document.activeElement;
     const media = $("#modal-media"); media.style.background = p.gradient; media.innerHTML = "";
-    media.appendChild(el("span", { text: p.title }));
+    if (p.image) media.appendChild(el("img", { src: p.image, alt: p.title + " screenshot" }));
+    else media.appendChild(el("span", { text: p.title }));
     $("#modal-kicker").textContent = p.tags.join(" · ");
     $("#modal-title").textContent = p.title;
     $("#modal-desc").textContent = p.long;
