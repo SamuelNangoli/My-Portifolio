@@ -577,6 +577,7 @@ body.preloading { overflow: hidden; }
             <p class="hud">
               <span class="live"><span class="dot" aria-hidden="true"></span> Available for work</span>
               <span>Kampala, UG</span>
+              <span id="view-counter" hidden><b id="view-count">0</b> views</span>
             </p>
 
             <h1 class="hero-name">
@@ -997,6 +998,38 @@ body.preloading { overflow: hidden; }
     const io = new IntersectionObserver((ents, o) => ents.forEach((e) => { if (e.isIntersecting) { run(e.target); o.unobserve(e.target); } }), { threshold: 0.4 });
     nums.forEach((n) => io.observe(n));
   }
+
+  /* Visitor counter — talks to /api/views (Vercel KV). Stays hidden until the
+     backend is configured, so it never shows a broken state. */
+  (function viewCounter() {
+    var wrap = $("#view-counter"), num = $("#view-count");
+    if (!wrap || !num) return;
+    var current = 0;
+    function animateTo(n) {
+      var start = current, t0 = performance.now(), dur = 700;
+      function frame(t) {
+        var k = Math.min(1, (t - t0) / dur);
+        var val = Math.round(start + (n - start) * (1 - Math.pow(1 - k, 3)));
+        num.textContent = val.toLocaleString();
+        if (k < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      current = n;
+    }
+    function poll(hit) {
+      fetch("/api/views" + (hit ? "?hit=1" : ""), { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && typeof d.count === "number") { wrap.hidden = false; animateTo(d.count); }
+        })
+        .catch(function () { /* backend not reachable — stay hidden */ });
+    }
+    var counted = false;
+    try { counted = sessionStorage.getItem("pf-counted") === "1"; } catch (e) {}
+    poll(!counted); // increment once per browser session, otherwise just read
+    if (!counted) { try { sessionStorage.setItem("pf-counted", "1"); } catch (e) {} }
+    setInterval(function () { poll(false); }, 20000); // near-realtime refresh
+  })();
 
   document.addEventListener("DOMContentLoaded", () => {
     renderCards();

@@ -46,6 +46,24 @@ Because it's a static site, deployment is drag-and-drop simple.
 - **GitHub Pages:** push to a repo, enable Pages, serve from the branch root (or `/portfolio`).
 - **Cloudflare Pages / any static host:** upload the folder — that's it.
 
+## Live visitor counter
+
+The hero shows a live "views" count powered by a tiny serverless function
+(`api/views.js`) + a Redis store. It stays **hidden until you connect a store**, so
+the site never shows a broken widget. To switch it on (one-time, ~2 min, free):
+
+1. In the **Vercel dashboard → your project → Storage → Create Database**.
+2. Choose **Upstash for Redis** (a.k.a. Vercel KV) and **connect it to this project**
+   (all environments). Vercel automatically adds the credentials as env vars
+   (`KV_REST_API_URL` / `KV_REST_API_TOKEN`, or `UPSTASH_REDIS_REST_URL` / `..._TOKEN`
+   — the function reads either).
+3. **Redeploy** (Deployments → ⋯ → Redeploy, or just push a commit).
+
+The counter then activates automatically. It counts each visitor once per browser
+session and refreshes every 20s. Notes: this only works on Vercel (or any host that
+runs `api/`) — opening `index.html` directly or via a plain static server will simply
+keep the counter hidden, which is expected.
+
 ## Customise
 
 > Everything below is edited **inside `index.html`**. Open it in any text editor. The CSS lives
