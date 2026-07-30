@@ -346,8 +346,13 @@ body.preloading { overflow: hidden; }
 .tags li { font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--hot); background: var(--accent-soft); border: 1px solid var(--border-strong); padding: .22rem .55rem; border-radius: 5px; }
 .card-more { margin-top: auto; align-self: flex-start; background: none; border: none; padding: .4rem 0 0; font: inherit; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; font-size: .82rem; color: var(--accent-bright); cursor: pointer; display: inline-flex; align-items: center; gap: .4rem; }
 .card-more::after { content: "→"; transition: transform var(--t); }
+.card-more { margin-top: 0; }
 .card-more:hover { color: var(--hot); }
 .card-more:hover::after { transform: translateX(5px); }
+.card-actions { margin-top: auto; padding-top: .6rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.card-visit { font-family: var(--mono); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: .78rem; color: var(--hot); display: inline-flex; align-items: center; gap: .3rem; white-space: nowrap; }
+.card-visit:hover { color: var(--accent-bright); }
+.modal-visit { margin-top: 1.5rem; width: 100%; }
 .noscript-note { grid-column: 1/-1; padding: 1.2rem; background: var(--card); border: 1px dashed var(--border-strong); border-radius: var(--radius); color: var(--ink-soft); }
 
 /* ---------- About / driver profile ---------- */
@@ -791,6 +796,7 @@ body.preloading { overflow: hidden; }
           <div><h4>Tech</h4><ul class="chips" id="modal-tech"></ul></div>
           <div><h4>Focus</h4><ul class="tags" id="modal-tags"></ul></div>
         </div>
+        <a class="btn btn-hot modal-visit" id="modal-visit" target="_blank" rel="noopener noreferrer" hidden>Visit live site ↗</a>
       </div>
     </div>
   </dialog>
@@ -829,11 +835,11 @@ body.preloading { overflow: hidden; }
     { id:"bodapay", title:"BodaPay",
       short:"Automatic daily-collection tracking for boda & taxi owners who lease vehicles to riders.",
       long:"Automatic daily-collection tracking for boda-boda (motorcycle) and taxi owners who lease vehicles to riders for a fixed daily fee. Mobile Money comes in, BodaPay matches it to the rider, and the owner gets a “Paid today” confirmation within seconds.",
-      tech:["Next.js","TypeScript","Tailwind","shadcn-style UI"], tags:["Fintech","Mobile Money","SaaS"], image:"assets/bodapay.png", gradient:"linear-gradient(135deg,#1e3a8a,#2563eb)" },
+      tech:["Next.js","TypeScript","Tailwind","shadcn-style UI"], tags:["Fintech","Mobile Money","SaaS"], link:"https://bodapay.trenttech.online/", image:"assets/bodapay.png", gradient:"linear-gradient(135deg,#1e3a8a,#2563eb)" },
     { id:"cadence", title:"Cadence",
       short:"A content calendar for social media managers and agencies running many client accounts at once.",
       long:"A content calendar for social media managers and agencies running many client accounts at once. Plan, approve, and publish every brand's month from one board, with per-channel post variants, drag-and-drop scheduling, an AI idea generator, and shareable client approval links.",
-      tech:["Next.js","TypeScript","Prisma","dnd-kit"], tags:["SaaS","Productivity","AI"], image:"assets/cadence.png", gradient:"linear-gradient(135deg,#0f766e,#14b8a6)" },
+      tech:["Next.js","TypeScript","Prisma","dnd-kit"], tags:["SaaS","Productivity","AI"], link:"https://cadence.trenttech.online/", image:"assets/cadence.png", gradient:"linear-gradient(135deg,#0f766e,#14b8a6)" },
     { id:"echo", title:"Echo",
       short:"A content-repurposing engine that turns one long asset into a full pack of platform-ready derivatives.",
       long:"A content-repurposing engine for podcasters and long-form YouTubers. Drop in one long asset and get a full package of platform-ready derivatives: short-form clip suggestions, X/Bluesky posts, threads, LinkedIn posts, a newsletter blurb, show notes, a carousel outline, pull quotes, and titles — all editable and export-ready.",
@@ -853,7 +859,7 @@ body.preloading { overflow: hidden; }
     { id:"unideal-pro", title:"UniDeal Pro",
       short:"A secure academic marketplace for UCU students, with Mobile Money payments and an admin panel.",
       long:"A secure academic marketplace for Uganda Christian University students to buy and sell second-hand items, with Mobile Money payments and an admin panel.",
-      tech:["Supabase","Node.js / Express","Mobile Money integration"], tags:["Marketplace","Fintech","Community"], image:"assets/unideal-pro.png", gradient:"linear-gradient(135deg,#4338ca,#6366f1)" },
+      tech:["Supabase","Node.js / Express","Mobile Money integration"], tags:["Marketplace","Fintech","Community"], link:"https://unideal.trenttech.online/", image:"assets/unideal-pro.png", gradient:"linear-gradient(135deg,#4338ca,#6366f1)" },
     { id:"trent-tech", title:"Trent Tech",
       short:"A polished, conversion-focused business site for a Kampala IT services company.",
       long:"A polished business site for an IT services company in Kampala offering WiFi setup, IT consulting, web development, and cloud services — locally trusted and conversion-focused.",
@@ -885,11 +891,15 @@ body.preloading { overflow: hidden; }
       } else {
         media.appendChild(el("span", { class: "media-label", text: p.title }));
       }
+      const actions = el("div", { class: "card-actions" }, [
+        el("button", { class: "card-more", type: "button", text: "Learn more", "aria-haspopup": "dialog", "aria-label": "Learn more about " + p.title, onclick: () => openModal(p) })
+      ]);
+      if (p.link) actions.appendChild(el("a", { class: "card-visit", href: p.link, target: "_blank", rel: "noopener noreferrer", text: "Visit ↗", "aria-label": "Open the live " + p.title + " site in a new tab" }));
       const body = el("div", { class: "card-body" }, [
         el("h3", { text: p.title }),
         el("p", { class: "card-desc", text: p.short }),
         chips(p.tags, "tags"),
-        el("button", { class: "card-more", type: "button", text: "Learn more", "aria-haspopup": "dialog", "aria-label": "Learn more about " + p.title, onclick: () => openModal(p) })
+        actions
       ]);
       const card = el("article", { class: "reveal card" + (i % 2 ? " from-right" : "") }, [media, body]);
       frag.appendChild(card);
@@ -909,6 +919,8 @@ body.preloading { overflow: hidden; }
     $("#modal-title").textContent = p.title;
     $("#modal-desc").textContent = p.long;
     fillChips($("#modal-tech"), p.tech); fillChips($("#modal-tags"), p.tags);
+    var mv = $("#modal-visit");
+    if (mv) { if (p.link) { mv.href = p.link; mv.hidden = false; } else { mv.removeAttribute("href"); mv.hidden = true; } }
     if (typeof modal.showModal === "function") modal.showModal(); else modal.setAttribute("open", "");
     $(".modal-close", modal).focus();
   }
